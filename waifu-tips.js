@@ -1,7 +1,4 @@
-/*
- * Live2D Widget
- * https://github.com/stevenjoezhang/live2d-widget
- */
+
 
 function loadWidget(config) {
 	let { waifuPath, apiPath, cdnPath } = config;
@@ -35,9 +32,11 @@ function loadWidget(config) {
 		document.getElementById("waifu").style.bottom = 0;
 	}, 0);
 
+   // 随机选择
 	function randomSelection(obj) {
 		return Array.isArray(obj) ? obj[Math.floor(Math.random() * obj.length)] : obj;
 	}
+
 	// 检测用户活动状态，并在空闲时显示消息
 	let userAction = false,
 		userActionTimer,
@@ -56,7 +55,7 @@ function loadWidget(config) {
 			}, 20000);
 		}
 	}, 1000);
-
+//注册事件监听器
 	(function registerEventListener() {
 		document.querySelector("#waifu-tool .fa-comment").addEventListener("click", showHitokoto);
 		document.querySelector("#waifu-tool .fa-paper-plane").addEventListener("click", () => {
@@ -77,7 +76,7 @@ function loadWidget(config) {
 			Live2D.captureFrame = true;
 		});
 		document.querySelector("#waifu-tool .fa-info-circle").addEventListener("click", () => {
-			open("https://github.com/stevenjoezhang/live2d-widget");
+			open("https://github.com/cheng733/live2d-widget");
 		});
 		document.querySelector("#waifu-tool .fa-times").addEventListener("click", () => {
 			localStorage.setItem("waifu-display", Date.now());
@@ -100,7 +99,7 @@ function loadWidget(config) {
 			if (!document.hidden) showMessage("哇，你终于回来了～", 6000, 9);
 		});
 	})();
-
+		//欢迎信息
 	(function welcomeMessage() {
 		let text;
 		if (location.pathname === "/") { // 如果是主页
@@ -120,13 +119,14 @@ function loadWidget(config) {
 			else if (domain === "baidu") text = `Hello！来自 百度搜索 的朋友<br>你是搜索 <span>${referrer.search.split("&wd=")[1].split("&")[0]}</span> 找到的我吗？`;
 			else if (domain === "so") text = `Hello！来自 360搜索 的朋友<br>你是搜索 <span>${referrer.search.split("&q=")[1].split("&")[0]}</span> 找到的我吗？`;
 			else if (domain === "google") text = `Hello！来自 谷歌搜索 的朋友<br>欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
+			else if (domain === "firefox") text = `Hello！来自 火狐搜索 的朋友<br>欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
 			else text = `Hello！来自 <span>${referrer.hostname}</span> 的朋友`;
 		} else {
 			text = `欢迎阅读<span>「${document.title.split(" - ")[0]}」</span>`;
 		}
 		showMessage(text, 7000, 8);
 	})();
-
+//展示hitokoto的消息
 	function showHitokoto() {
 		// 增加 hitokoto.cn 的 API
 		fetch("https://v1.hitokoto.cn")
@@ -139,7 +139,7 @@ function loadWidget(config) {
 				}, 6000);
 			});
 	}
-
+	// 展示信息
 	function showMessage(text, timeout, priority) {
 		if (!text || (sessionStorage.getItem("waifu-text") && sessionStorage.getItem("waifu-text") > priority)) return;
 		if (messageTimer) {
@@ -156,7 +156,7 @@ function loadWidget(config) {
 			tips.classList.remove("waifu-tips-active");
 		}, timeout);
 	}
-
+//初始化模型
 	(function initModel() {
 		let modelId = localStorage.getItem("modelId"),
 			modelTexturesId = localStorage.getItem("modelTexturesId");
@@ -201,12 +201,13 @@ function loadWidget(config) {
 			});
 	})();
 
+//加载模型列表
 	async function loadModelList() {
 		let response = await fetch(`${cdnPath}model_list.json`);
 		let result = await response.json();
 		modelList = result;
 	}
-
+	//加载模型
 	async function loadModel(modelId, modelTexturesId, message) {
 		localStorage.setItem("modelId", modelId);
 		localStorage.setItem("modelTexturesId", modelTexturesId);
@@ -220,7 +221,7 @@ function loadWidget(config) {
 			console.log(`Live2D 模型 ${modelId}-${modelTexturesId} 加载完成`);
 		}
 	}
-
+	//随机加载模型
 	async function loadRandModel() {
 		let modelId = localStorage.getItem("modelId"),
 			modelTexturesId = localStorage.getItem("modelTexturesId");
@@ -240,6 +241,50 @@ function loadWidget(config) {
 		}
 	}
 
+ (function drag(){
+	console.log('1212')
+            var drag = document.getElementById('waifu-toggle');
+            // //点击某物体时，用drag对象即可，move和up是全局区域，
+            // 也就是整个文档通用，应该使用document对象而不是drag对象(否则，采用drag对象时物体只能往右方或下方移动)  
+            drag.onmousedown = function(event){
+               var event = event || window.event;  //兼容IE浏览器
+            //    鼠标点击物体那一刻相对于物体左侧边框的距离=点击时的位置相对于浏览器最左边的距离-物体左边框相对于浏览器最左边的距离
+               var diffX = event.clientX - drag.offsetLeft;
+               var diffY = event.clientY - drag.offsetTop;
+               if(typeof drag.setCapture !== 'undefined'){
+                      drag.setCapture(); 
+               }
+            document.onmousemove = function(event){
+                var event = event || window.event;
+                var moveX = event.clientX - diffX;
+                var moveY = event.clientY - diffY;
+                if(moveX < 0){
+                    moveX = 0
+                }else if(moveX > window.innerWidth - drag.offsetWidth){
+                    moveX = window.innerWidth - drag.offsetWidth
+                }
+                if(moveY < 0){
+                    moveY = 0
+                }else if(moveY > window.innerHeight - drag.offsetHeight){
+                    moveY =  window.innerHeight - drag.offsetHeight
+                }
+                drag.style.left = moveX + 'px';
+                drag.style.top = moveY + 'px'
+            }
+            document.onmouseup = function(event){
+                this.onmousemove = null;
+                this.onmouseup = null;
+                 //修复低版本ie bug  
+                if(typeof drag.releaseCapture!='undefined'){  
+                   drag.releaseCapture();  
+                }  
+            }
+        }
+    })()
+
+
+
+	//加载其他的类型
 	async function loadOtherModel() {
 		let modelId = localStorage.getItem("modelId");
 		if (useCDN) {
@@ -255,7 +300,7 @@ function loadWidget(config) {
 		}
 	}
 }
-
+	//初始化窗口小部件
 function initWidget(config, apiPath) {
 	if (typeof config === "string") {
 		config = {
@@ -289,3 +334,4 @@ function initWidget(config, apiPath) {
 		loadWidget(config);
 	}
 }
+ 
